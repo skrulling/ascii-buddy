@@ -2,7 +2,7 @@
 
 A web-based ASCII art generator that converts images to ASCII art using shape-based character matching.
 
-**[Try it live](https://YOUR_USERNAME.github.io/ascii-buddy/)** | [How it works](#how-it-works)
+**[Try it live](https://skrulling.github.io/ascii-buddy/)** | [How it works](#how-it-works)
 
 ![ASCII Buddy Screenshot](https://via.placeholder.com/800x450/1a1a1a/ffffff?text=ASCII+Buddy+Screenshot)
 
@@ -18,7 +18,7 @@ A web-based ASCII art generator that converts images to ASCII art using shape-ba
 
 ### Online
 
-Visit the [live demo](https://YOUR_USERNAME.github.io/ascii-buddy/) and drop an image.
+Visit the [live demo](https://skrulling.github.io/ascii-buddy/) and drop an image.
 
 ### Local
 
