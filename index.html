@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCII Buddy</title>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>ASCII Buddy</h1>
+      <p>Transform images into ASCII art</p>
+    </header>
+
+    <main>
+      <section id="input-section">
+        <div id="drop-zone" class="drop-zone">
+          <p>Drop an image here, paste, or</p>
+          <input type="file" id="file-input" accept="image/*">
+          <label for="file-input" class="button">Choose File</label>
+
+          <div class="url-input-group">
+            <input type="url" id="url-input" placeholder="Or enter image URL">
+            <button id="url-load-btn">Load</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="output-section" style="display: none;">
+        <div id="ascii-display">
+          <pre id="ascii-output"></pre>
+        </div>
+
+        <div class="controls">
+          <button id="copy-btn">Copy to Clipboard</button>
+          <button id="download-txt-btn">Download TXT</button>
+          <button id="download-png-btn">Download PNG</button>
+          <button id="new-image-btn">New Image</button>
+        </div>
+      </section>
+
+      <div id="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

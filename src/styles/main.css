@@ -1,0 +1,266 @@
+:root {
+  --bg-dark: #1a1a1a;
+  --bg-medium: #2a2a2a;
+  --text-light: #ffffff;
+  --text-dim: #aaaaaa;
+  --accent: #4a9eff;
+  --accent-hover: #6bb0ff;
+  --error: #ff4a4a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  padding: 2rem 1rem;
+  border-bottom: 1px solid var(--bg-medium);
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  color: var(--text-dim);
+}
+
+main {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.drop-zone {
+  border: 2px dashed var(--bg-medium);
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  transition: all 0.3s;
+  background: transparent;
+}
+
+.drop-zone:hover {
+  border-color: #444;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(74, 158, 255, 0.1);
+}
+
+.drop-zone p {
+  margin-bottom: 1rem;
+  color: var(--text-dim);
+}
+
+.button,
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+  display: inline-block;
+}
+
+.button:hover,
+button:hover {
+  background: var(--accent-hover);
+}
+
+.button:active,
+button:active {
+  transform: translateY(1px);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+input[type="url"] {
+  background: var(--bg-medium);
+  border: 1px solid #444;
+  color: var(--text-light);
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 300px;
+  max-width: 100%;
+  transition: border-color 0.2s;
+}
+
+input[type="url"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+input[type="url"]::placeholder {
+  color: var(--text-dim);
+}
+
+.url-input-group {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+#ascii-display {
+  background: var(--bg-medium);
+  border-radius: 8px;
+  padding: 1.5rem;
+  overflow: auto;
+  margin-bottom: 1rem;
+  max-height: 70vh;
+}
+
+#ascii-output {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  line-height: 1;
+  white-space: pre;
+  color: var(--text-light);
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 26, 26, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#loading p {
+  margin-top: 1rem;
+  color: var(--text-dim);
+}
+
+.spinner {
+  border: 4px solid var(--bg-medium);
+  border-top: 4px solid var(--accent);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toast notifications */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-medium);
+  color: var(--text-light);
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  animation: slideUp 0.3s ease-out;
+}
+
+.toast.error {
+  background: var(--error);
+}
+
+.toast.success {
+  background: #4aff6b;
+  color: #1a1a1a;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 1.8rem;
+  }
+
+  main {
+    padding: 1rem;
+  }
+
+  .drop-zone {
+    padding: 2rem 1rem;
+  }
+
+  input[type="url"] {
+    width: 100%;
+  }
+
+  .url-input-group {
+    flex-direction: column;
+  }
+
+  #ascii-output {
+    font-size: 6px;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  .controls button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  #ascii-output {
+    font-size: 4px;
+  }
+}
