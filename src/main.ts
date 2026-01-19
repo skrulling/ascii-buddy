@@ -1,5 +1,5 @@
 import './styles/main.css';
-import { ASCIIEngine } from './engine/ASCIIEngine';
+import { ASCIIEngine, ProcessOptions } from './engine/ASCIIEngine';
 import { InputHandler } from './input/InputHandler';
 import { ExportManager } from './output/ExportManager';
 import { Renderer } from './output/Renderer';
@@ -11,7 +11,10 @@ class App {
   private exportManager: ExportManager;
   private renderer: Renderer | null = null;
   private currentResult: ASCIIResult | null = null;
+  private currentImage: HTMLImageElement | null = null;
   private colorMode: boolean = false;
+  private resolution: number = 150;
+  private contrastExponent: number = 2.0;
 
   constructor() {
     this.engine = new ASCIIEngine();
@@ -34,7 +37,7 @@ class App {
         (msg) => this.showToast(msg, 'error')
       );
 
-      // Setup export buttons and color toggle
+      // Setup export buttons and controls
       this.setupControls();
 
       this.hideLoading();
@@ -45,15 +48,27 @@ class App {
   }
 
   private async processImage(image: HTMLImageElement): Promise<void> {
+    this.currentImage = image;
+    await this.reprocessImage();
+    this.showOutput();
+  }
+
+  private async reprocessImage(): Promise<void> {
+    if (!this.currentImage) return;
+    
     this.showLoading('Processing image...');
 
     try {
       // Use setTimeout to allow UI to update before heavy processing
       await new Promise(resolve => setTimeout(resolve, 50));
 
-      this.currentResult = await this.engine.processImage(image);
+      const options: ProcessOptions = {
+        resolution: this.resolution,
+        contrastExponent: this.contrastExponent
+      };
+
+      this.currentResult = await this.engine.processImage(this.currentImage, options);
       this.renderer?.display(this.currentResult, this.colorMode);
-      this.showOutput();
     } catch (error) {
       this.showToast('Error processing image: ' + error, 'error');
     } finally {
@@ -82,10 +97,24 @@ class App {
     const urlInput = document.getElementById('url-input') as HTMLInputElement;
     if (urlInput) urlInput.value = '';
 
-    // Reset color toggle
+    // Reset controls to defaults
     const colorToggle = document.getElementById('color-toggle') as HTMLInputElement;
     if (colorToggle) colorToggle.checked = false;
     this.colorMode = false;
+
+    const resolutionSlider = document.getElementById('resolution-slider') as HTMLInputElement;
+    if (resolutionSlider) resolutionSlider.value = '150';
+    const resolutionValue = document.getElementById('resolution-value');
+    if (resolutionValue) resolutionValue.textContent = '150';
+    this.resolution = 150;
+
+    const contrastSlider = document.getElementById('contrast-slider') as HTMLInputElement;
+    if (contrastSlider) contrastSlider.value = '20';
+    const contrastValue = document.getElementById('contrast-value');
+    if (contrastValue) contrastValue.textContent = '2.0';
+    this.contrastExponent = 2.0;
+
+    this.currentImage = null;
   }
 
   private showLoading(message: string): void {
@@ -122,6 +151,28 @@ class App {
       if (this.currentResult) {
         this.renderer?.display(this.currentResult, this.colorMode);
       }
+    });
+
+    // Resolution slider
+    const resolutionSlider = document.getElementById('resolution-slider') as HTMLInputElement;
+    const resolutionValue = document.getElementById('resolution-value');
+    resolutionSlider?.addEventListener('input', () => {
+      this.resolution = parseInt(resolutionSlider.value, 10);
+      if (resolutionValue) resolutionValue.textContent = resolutionSlider.value;
+    });
+    resolutionSlider?.addEventListener('change', () => {
+      this.reprocessImage();
+    });
+
+    // Contrast/edge detail slider
+    const contrastSlider = document.getElementById('contrast-slider') as HTMLInputElement;
+    const contrastValue = document.getElementById('contrast-value');
+    contrastSlider?.addEventListener('input', () => {
+      this.contrastExponent = parseInt(contrastSlider.value, 10) / 10;
+      if (contrastValue) contrastValue.textContent = this.contrastExponent.toFixed(1);
+    });
+    contrastSlider?.addEventListener('change', () => {
+      this.reprocessImage();
     });
 
     // Export buttons

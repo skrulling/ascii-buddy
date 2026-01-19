@@ -31,8 +31,20 @@
           <label class="toggle">
             <input type="checkbox" id="color-toggle">
             <span class="toggle-slider"></span>
-            <span class="toggle-label">Color Mode</span>
+            <span class="toggle-label">Color</span>
           </label>
+
+          <div class="slider-group">
+            <label for="resolution-slider">Resolution</label>
+            <input type="range" id="resolution-slider" min="60" max="200" value="150">
+            <span id="resolution-value">150</span>
+          </div>
+
+          <div class="slider-group">
+            <label for="contrast-slider">Edge Detail</label>
+            <input type="range" id="contrast-slider" min="10" max="40" value="20">
+            <span id="contrast-value">2.0</span>
+          </div>
         </div>
 
         <div id="ascii-display">

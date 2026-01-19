@@ -1,11 +1,17 @@
 import { KDTree } from './KDTree';
 import { CharacterData, KDPoint, ASCIICell, ASCIIResult } from './types';
 
+export interface ProcessOptions {
+  resolution: number;
+  contrastExponent: number;
+}
+
 export class ASCIIEngine {
   private characters: CharacterData[] = [];
   private kdTree: KDTree | null = null;
   private charCanvas: HTMLCanvasElement;
   private charCtx: CanvasRenderingContext2D;
+  private contrastExponent: number = 2.0;
 
   constructor() {
     this.charCanvas = document.createElement('canvas');
@@ -167,12 +173,14 @@ export class ASCIIEngine {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }
 
-  async processImage(image: HTMLImageElement): Promise<ASCIIResult> {
+  async processImage(image: HTMLImageElement, options?: ProcessOptions): Promise<ASCIIResult> {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
 
-    // Default grid: ~120 chars wide
-    const targetWidth = 120;
+    // Use provided resolution or default to 150 chars wide
+    const targetWidth = options?.resolution ?? 150;
+    this.contrastExponent = options?.contrastExponent ?? 2.0;
+    
     const aspectRatio = image.height / image.width;
     // 0.5 factor accounts for character aspect ratio (chars are ~2x taller than wide)
     const targetHeight = Math.round(targetWidth * aspectRatio * 0.5);
@@ -231,14 +239,33 @@ export class ASCIIEngine {
   }
 
   private enhanceContrast(vector: number[]): number[] {
-    // Global contrast enhancement
     const mean = vector.reduce((a, b) => a + b, 0) / vector.length;
-    const normalized = vector.map(v => v - mean);
+    
+    // Find min/max for normalization
+    const min = Math.min(...vector);
+    const max = Math.max(...vector);
+    const range = max - min;
+    
+    // If the cell has very low contrast, normalize it to use full range
+    // This helps with soft/blurry images
+    let normalized: number[];
+    if (range < 0.1) {
+      // Very low contrast - stretch to use more of the range
+      if (range > 0.001) {
+        normalized = vector.map(v => (v - min) / range - 0.5);
+      } else {
+        // Essentially flat - just center around 0
+        normalized = vector.map(() => 0);
+      }
+    } else {
+      normalized = vector.map(v => v - mean);
+    }
 
     // Apply power function to enhance differences
+    // Use configurable exponent for edge enhancement
     const enhanced = normalized.map(v => {
       const sign = v >= 0 ? 1 : -1;
-      return sign * Math.pow(Math.abs(v), 1.5);
+      return sign * Math.pow(Math.abs(v), this.contrastExponent);
     });
 
     // Denormalize back
