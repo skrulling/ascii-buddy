@@ -21,7 +21,7 @@ export class ExportManager {
     URL.revokeObjectURL(url);
   }
 
-  downloadPNG(result: ASCIIResult, colorMode: boolean): void {
+  downloadPNG(result: ASCIIResult, colorMode: boolean, darkMode: boolean = true): void {
     if (result.grid.length === 0 || result.grid[0].length === 0) return;
 
     const canvas = document.createElement('canvas');
@@ -35,19 +35,22 @@ export class ExportManager {
     canvas.width = result.grid[0].length * charWidth + padding * 2;
     canvas.height = result.grid.length * charHeight + padding * 2;
 
-    // Set background
-    ctx.fillStyle = '#1a1a1a';
+    // Set background based on mode
+    ctx.fillStyle = darkMode ? '#1a1a1a' : '#f5f5f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Set font
     ctx.font = `${charHeight}px "Courier New", Courier, monospace`;
     ctx.textBaseline = 'top';
 
+    // Default text color based on mode
+    const defaultColor = darkMode ? '#ffffff' : '#1a1a1a';
+
     // Draw each character
     for (let y = 0; y < result.grid.length; y++) {
       for (let x = 0; x < result.grid[y].length; x++) {
         const cell = result.grid[y][x];
-        ctx.fillStyle = colorMode ? cell.color : '#ffffff';
+        ctx.fillStyle = colorMode ? cell.color : defaultColor;
         ctx.fillText(
           cell.char,
           padding + x * charWidth,

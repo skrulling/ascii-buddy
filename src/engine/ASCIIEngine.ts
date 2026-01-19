@@ -4,6 +4,7 @@ import { CharacterData, KDPoint, ASCIICell, ASCIIResult } from './types';
 export interface ProcessOptions {
   resolution: number;
   contrastExponent: number;
+  invertBrightness: boolean;
 }
 
 export class ASCIIEngine {
@@ -12,6 +13,7 @@ export class ASCIIEngine {
   private charCanvas: HTMLCanvasElement;
   private charCtx: CanvasRenderingContext2D;
   private contrastExponent: number = 2.0;
+  private invertBrightness: boolean = true;
 
   constructor() {
     this.charCanvas = document.createElement('canvas');
@@ -125,7 +127,10 @@ export class ASCIIEngine {
           0.2126 * imageData.data[idx] +
           0.7152 * imageData.data[idx + 1] +
           0.0722 * imageData.data[idx + 2];
-        sum += brightness / 255;
+        // Optionally invert: dark image areas -> high values -> dense characters
+        // This is appropriate for light-on-dark display (dark mode)
+        const normalizedBrightness = brightness / 255;
+        sum += this.invertBrightness ? (1 - normalizedBrightness) : normalizedBrightness;
         count++;
       }
     }
@@ -180,6 +185,7 @@ export class ASCIIEngine {
     // Use provided resolution or default to 150 chars wide
     const targetWidth = options?.resolution ?? 150;
     this.contrastExponent = options?.contrastExponent ?? 2.0;
+    this.invertBrightness = options?.invertBrightness ?? true;
     
     const aspectRatio = image.height / image.width;
     // 0.5 factor accounts for character aspect ratio (chars are ~2x taller than wide)

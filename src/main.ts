@@ -13,6 +13,7 @@ class App {
   private currentResult: ASCIIResult | null = null;
   private currentImage: HTMLImageElement | null = null;
   private colorMode: boolean = false;
+  private darkMode: boolean = true;
   private resolution: number = 150;
   private contrastExponent: number = 2.0;
 
@@ -64,7 +65,8 @@ class App {
 
       const options: ProcessOptions = {
         resolution: this.resolution,
-        contrastExponent: this.contrastExponent
+        contrastExponent: this.contrastExponent,
+        invertBrightness: this.darkMode
       };
 
       this.currentResult = await this.engine.processImage(this.currentImage, options);
@@ -101,6 +103,14 @@ class App {
     const colorToggle = document.getElementById('color-toggle') as HTMLInputElement;
     if (colorToggle) colorToggle.checked = false;
     this.colorMode = false;
+
+    const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLInputElement;
+    if (darkModeToggle) darkModeToggle.checked = true;
+    this.darkMode = true;
+    
+    // Reset display styling
+    const asciiDisplay = document.getElementById('ascii-display');
+    if (asciiDisplay) asciiDisplay.classList.remove('light-mode');
 
     const resolutionSlider = document.getElementById('resolution-slider') as HTMLInputElement;
     if (resolutionSlider) resolutionSlider.value = '150';
@@ -144,6 +154,20 @@ class App {
   }
 
   private setupControls(): void {
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLInputElement;
+    const asciiDisplay = document.getElementById('ascii-display');
+    darkModeToggle?.addEventListener('change', () => {
+      this.darkMode = darkModeToggle.checked;
+      if (asciiDisplay) {
+        asciiDisplay.classList.toggle('light-mode', !this.darkMode);
+      }
+      // Re-process image with new brightness mode
+      if (this.currentImage) {
+        this.reprocessImage();
+      }
+    });
+
     // Color toggle
     const colorToggle = document.getElementById('color-toggle') as HTMLInputElement;
     colorToggle?.addEventListener('change', () => {
@@ -194,7 +218,7 @@ class App {
 
     document.getElementById('download-png-btn')?.addEventListener('click', () => {
       if (!this.currentResult) return;
-      this.exportManager.downloadPNG(this.currentResult, this.colorMode);
+      this.exportManager.downloadPNG(this.currentResult, this.colorMode, this.darkMode);
       this.showToast('Downloading PNG...', 'success');
     });
 

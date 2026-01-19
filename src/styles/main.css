@@ -138,6 +138,11 @@ input[type="url"]::placeholder {
   overflow: auto;
   margin-bottom: 1rem;
   max-height: 70vh;
+  transition: background 0.2s;
+}
+
+#ascii-display.light-mode {
+  background: #f5f5f5;
 }
 
 #ascii-output {
@@ -146,6 +151,11 @@ input[type="url"]::placeholder {
   line-height: 1;
   white-space: pre;
   color: var(--text-light);
+  transition: color 0.2s;
+}
+
+#ascii-display.light-mode #ascii-output {
+  color: #1a1a1a;
 }
 
 .controls {
