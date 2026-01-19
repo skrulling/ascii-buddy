@@ -3,13 +3,15 @@ import { ASCIIEngine } from './engine/ASCIIEngine';
 import { InputHandler } from './input/InputHandler';
 import { ExportManager } from './output/ExportManager';
 import { Renderer } from './output/Renderer';
+import { ASCIIResult } from './engine/types';
 
 class App {
   private engine: ASCIIEngine;
   private inputHandler: InputHandler | null = null;
   private exportManager: ExportManager;
   private renderer: Renderer | null = null;
-  private currentASCII: string[][] = [];
+  private currentResult: ASCIIResult | null = null;
+  private colorMode: boolean = false;
 
   constructor() {
     this.engine = new ASCIIEngine();
@@ -32,8 +34,8 @@ class App {
         (msg) => this.showToast(msg, 'error')
       );
 
-      // Setup export buttons
-      this.setupExportButtons();
+      // Setup export buttons and color toggle
+      this.setupControls();
 
       this.hideLoading();
     } catch (error) {
@@ -49,8 +51,8 @@ class App {
       // Use setTimeout to allow UI to update before heavy processing
       await new Promise(resolve => setTimeout(resolve, 50));
 
-      this.currentASCII = await this.engine.processImage(image);
-      this.renderer?.display(this.currentASCII);
+      this.currentResult = await this.engine.processImage(image);
+      this.renderer?.display(this.currentResult, this.colorMode);
       this.showOutput();
     } catch (error) {
       this.showToast('Error processing image: ' + error, 'error');
@@ -79,6 +81,11 @@ class App {
     // Reset URL input
     const urlInput = document.getElementById('url-input') as HTMLInputElement;
     if (urlInput) urlInput.value = '';
+
+    // Reset color toggle
+    const colorToggle = document.getElementById('color-toggle') as HTMLInputElement;
+    if (colorToggle) colorToggle.checked = false;
+    this.colorMode = false;
   }
 
   private showLoading(message: string): void {
@@ -107,10 +114,21 @@ class App {
     setTimeout(() => toast.remove(), 3000);
   }
 
-  private setupExportButtons(): void {
+  private setupControls(): void {
+    // Color toggle
+    const colorToggle = document.getElementById('color-toggle') as HTMLInputElement;
+    colorToggle?.addEventListener('change', () => {
+      this.colorMode = colorToggle.checked;
+      if (this.currentResult) {
+        this.renderer?.display(this.currentResult, this.colorMode);
+      }
+    });
+
+    // Export buttons
     document.getElementById('copy-btn')?.addEventListener('click', async () => {
+      if (!this.currentResult) return;
       try {
-        await this.exportManager.copyToClipboard(this.currentASCII);
+        await this.exportManager.copyToClipboard(this.currentResult);
         this.showToast('Copied to clipboard!', 'success');
       } catch {
         this.showToast('Failed to copy to clipboard', 'error');
@@ -118,12 +136,14 @@ class App {
     });
 
     document.getElementById('download-txt-btn')?.addEventListener('click', () => {
-      this.exportManager.downloadTXT(this.currentASCII);
+      if (!this.currentResult) return;
+      this.exportManager.downloadTXT(this.currentResult);
       this.showToast('Downloading TXT...', 'success');
     });
 
     document.getElementById('download-png-btn')?.addEventListener('click', () => {
-      this.exportManager.downloadPNG(this.currentASCII);
+      if (!this.currentResult) return;
+      this.exportManager.downloadPNG(this.currentResult, this.colorMode);
       this.showToast('Downloading PNG...', 'success');
     });
 

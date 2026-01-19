@@ -90,6 +90,34 @@ export class ASCIIEngine {
         }
         return count > 0 ? sum / count : 0;
     }
+    sampleCellColor(imageData, cx, cy, cellWidth, cellHeight) {
+        let r = 0, g = 0, b = 0;
+        let count = 0;
+        // Sample a grid of points within the cell
+        const startX = Math.floor(cx - cellWidth / 2);
+        const startY = Math.floor(cy - cellHeight / 2);
+        const endX = Math.floor(cx + cellWidth / 2);
+        const endY = Math.floor(cy + cellHeight / 2);
+        // Sample every few pixels for performance
+        const step = Math.max(1, Math.floor(Math.min(cellWidth, cellHeight) / 4));
+        for (let y = startY; y < endY; y += step) {
+            for (let x = startX; x < endX; x += step) {
+                if (x >= 0 && x < imageData.width && y >= 0 && y < imageData.height) {
+                    const idx = (y * imageData.width + x) * 4;
+                    r += imageData.data[idx];
+                    g += imageData.data[idx + 1];
+                    b += imageData.data[idx + 2];
+                    count++;
+                }
+            }
+        }
+        if (count === 0)
+            return '#ffffff';
+        r = Math.round(r / count);
+        g = Math.round(g / count);
+        b = Math.round(b / count);
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
     async processImage(image) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -107,7 +135,7 @@ export class ASCIIEngine {
     imageToASCII(imageData, gridWidth, gridHeight) {
         const cellWidth = imageData.width / gridWidth;
         const cellHeight = imageData.height / gridHeight;
-        const result = [];
+        const grid = [];
         for (let gy = 0; gy < gridHeight; gy++) {
             const row = [];
             for (let gx = 0; gx < gridWidth; gx++) {
@@ -127,11 +155,13 @@ export class ASCIIEngine {
                 vector = this.enhanceContrast(vector);
                 // Find best matching character
                 const char = this.kdTree.nearest(vector);
-                row.push(char);
+                // Sample average color for this cell
+                const color = this.sampleCellColor(imageData, cx, cy, cellWidth, cellHeight);
+                row.push({ char, color });
             }
-            result.push(row);
+            grid.push(row);
         }
-        return result;
+        return { grid, width: gridWidth, height: gridHeight };
     }
     enhanceContrast(vector) {
         // Global contrast enhancement

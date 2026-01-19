@@ -155,6 +155,68 @@ input[type="url"]::placeholder {
   gap: 0.5rem;
 }
 
+/* Options bar */
+.options {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+/* Toggle switch */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle-slider {
+  width: 48px;
+  height: 26px;
+  background: var(--bg-medium);
+  border-radius: 13px;
+  position: relative;
+  transition: background 0.2s;
+  border: 1px solid #444;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.toggle input:checked + .toggle-slider {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.toggle input:checked + .toggle-slider::after {
+  transform: translateX(22px);
+  background: white;
+}
+
+.toggle-label {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.toggle input:checked ~ .toggle-label {
+  color: var(--text-light);
+}
+
 #loading {
   position: fixed;
   top: 0;
